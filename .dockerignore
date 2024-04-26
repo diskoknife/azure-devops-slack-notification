@@ -1,0 +1,11 @@
+# Ignore the .dockerignore file itself
+.dockerignore
+
+# Ignore all local development files and directories
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.mo
