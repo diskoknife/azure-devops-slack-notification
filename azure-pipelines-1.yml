@@ -24,7 +24,7 @@ steps:
 - script: ./scripts/get_variable_groups.sh
   displayName: 'get all variable groups'
 
-- script: python /scripts/csv_to_json.py
+- script: python /scripts/json_to_csv.py
   displayName: 'convert json data to csv'
 
 - script: python /scripts/send_csv_to_slack.py
