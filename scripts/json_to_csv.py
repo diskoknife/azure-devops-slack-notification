@@ -31,16 +31,23 @@ def generate_csv(release_file, csv_output_file, variable_group_file):
 
     #defining header row in csv data
     csv_data = [[""] + releases_and_stages]
-    
+    """
+    definetely hardest part that neeed docs:
+    first we attach name of variable froup to row
+    then searching if name of this row is exist in release scope
+    then we start loop over every stage in this release
+    ...
+    and it seems working
+    """
     for group in variable_groups:
         row = [group]
         for item in data:
+            row.append(group in item.get("releaseVariableGroups", []))
             if 'stages' in item:
                 for stage in item['stages']:
                     row.append(group in stage.get("stageVariableGroup", []))
                     print(stage)
                     print(row)
-            row.append(group in item.get("releaseVariableGroups", []))
         csv_data.append(row)
 
 
