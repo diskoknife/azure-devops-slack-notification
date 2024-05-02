@@ -13,6 +13,7 @@ schedules:
 variables:
   group: NotJustTestVar
   
+  
 pool:
   name: 'test task pool'
 
