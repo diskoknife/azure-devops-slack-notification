@@ -24,6 +24,7 @@ do
     release_details=$(az pipelines release show \
     --id "$release_id" \
     --query '{
+        release: name
         releaseVariableGroups: variableGroups[].name,
         stages: environments[].{
             stage: name,
