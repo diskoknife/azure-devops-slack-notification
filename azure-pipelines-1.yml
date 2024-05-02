@@ -7,7 +7,8 @@ schedules:
   - cron: 0 14 * * *
     displayName: send csv file everyday on 14:00
     branches: 
-      include: master
+      include: 
+        - master
 
 pool:
   poolName: test task pool
