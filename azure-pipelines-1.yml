@@ -11,7 +11,7 @@ schedules:
         - master
 
 pool:
-  poolName: 'test task pool'
+  name: 'test task pool'
 
 steps:
 - script: ./scripts/get_variable_groups_in_releases.sh
