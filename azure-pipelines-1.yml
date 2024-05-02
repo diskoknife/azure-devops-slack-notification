@@ -10,6 +10,9 @@ schedules:
       include: 
         - master
 
+variables:
+  group: NotJustTestVar
+  
 pool:
   name: 'test task pool'
 
