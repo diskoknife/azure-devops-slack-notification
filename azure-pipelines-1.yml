@@ -16,10 +16,7 @@ variables:
 pool:
   name: 'test task pool'
 
-steps:
-- script: echo$(JSON_OUTPUT_FILE)
-  displayName: just testing
-  
+steps:  
 - script: ./scripts/get_variable_groups_in_releases.sh
   displayName: 'get release data into json file'
 
