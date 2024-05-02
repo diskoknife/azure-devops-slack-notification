@@ -20,14 +20,12 @@ def generate_csv(release_file, csv_output_file, variable_group_file):
         data = []
         for line in json_data:
             data.append(json.loads(line))
-
     releases_and_stages = []
     for item in data:
         release = item['release']
         stages = [stage['stage'] for stage in item['stages']]
         releases_and_stages.append(release)
         releases_and_stages.extend(stages)
-
     with open(variable_group_file) as var_json:
         variable_groups = json.load(var_json)
 
@@ -35,8 +33,17 @@ def generate_csv(release_file, csv_output_file, variable_group_file):
     csv_data = [[""] + releases_and_stages]
     
     for group in variable_groups:
-        row = [group] + [group in item.get("releaseVariableGroups", [])] + [group in stage.get("stageVariableGroup", []) for stage in item["stages"]]
+        row = [group]
+        for item in data:
+            if 'stages' in item:
+                for stage in item['stages']:
+                    row.append(group in stage.get("stageVariableGroup", []))
+                    print(stage)
+                    print(row)
+            row.append(group in item.get("releaseVariableGroups", []))
         csv_data.append(row)
+
+
     with open(csv_output_file, 'w') as csv_out:
         writer = csv.writer(csv_out)
         writer.writerows(csv_data)
