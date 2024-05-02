@@ -46,8 +46,6 @@ def generate_csv(release_file, csv_output_file, variable_group_file):
             if 'stages' in item:
                 for stage in item['stages']:
                     row.append(group in stage.get("stageVariableGroup", []))
-                    print(stage)
-                    print(row)
         csv_data.append(row)
 
 
