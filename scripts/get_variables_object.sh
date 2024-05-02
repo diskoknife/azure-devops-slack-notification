@@ -3,7 +3,15 @@
 set -e
 set -o pipefail
 
-output="variables.json"
+
+# check if JSON_OUTPUT_FILE env variable exists (next same variable will be used in python script)
+if [ -z "$JSON_OUTPUT_FILE" ]; then
+    echo "Please set the JSON_OUTPUT_FILE as file to which output will be written"
+    echo "export JSON_OUTPUT_FILE="path/to/file.json"
+    exit 1
+fi
+
+output=($JSON_OUTPUT_FILE)
 # attach all of release id's to var
 release_count=$(az pipelines release list --query "[].id")
 
@@ -24,5 +32,6 @@ do
     }' \
     --output json) \
     
-    echo "$release_details">> "$output"
+    # Using jq simple filter for later using it in python parse module
+    echo "$release_details" | jq -c '.' >> "$output"
 done
