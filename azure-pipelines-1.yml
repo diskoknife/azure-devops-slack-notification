@@ -26,6 +26,14 @@ steps:
 
 - script: python ./scripts/json_to_csv.py
   displayName: 'convert json data to csv'
+  env:
+    JSON_VARIABLES_GROUPS: $(JSON_VARIABLES_GROUPS)
+    JSON_OUTPUT_FILE: $(JSON_OUTPUT_FILE)
+    CSV_OUTPUT_FILE: $(CSV_OUTPUT_FILE)
 
 - script: python ./scripts/send_csv_to_slack.py
   displayName: 'send file to slack'
+  env:
+    SLACK_BOT_TOKEN: $(SLACK_BOT_TOKEN)
+    SLACK_CHANNEL_ID: $(SLACK_CHANNEL_ID)
+    CSV_OUTPUT_FILE: $(CSV_OUTPUT_FILE)
