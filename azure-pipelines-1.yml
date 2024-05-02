@@ -1,0 +1,25 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+schedules:
+  - cron: 0 14 * * *
+    displayName: send csv file everyday on 14:00
+
+pool:
+  poolName: test task pool
+  vmImage: ubuntu-latest
+
+steps:
+- script: ./scripts/get_variable_groups_in_releases.sh
+  displayName: 'get release data into json file'
+
+- script: ./scripts/get_variable_groups.sh
+  displayName: 'get all variable groups'
+
+- script: python /scripts/csv_to_json.py
+  displayName: 'convert json data to csv'
+
+- script: python /scripts/send_csv_to_slack.py
+  displayName: 'send file to slack'
