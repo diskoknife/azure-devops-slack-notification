@@ -12,7 +12,6 @@ schedules:
 
 pool:
   poolName: test task pool
-  vmImage: ubuntu-latest
 
 steps:
 - script: ./scripts/get_variable_groups_in_releases.sh
