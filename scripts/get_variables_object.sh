@@ -9,11 +9,11 @@ release_count=$(az pipelines release list --query "[].id")
 
 # friendly reminder: bash has no types as you were expecting
 release_ids=$(echo "$release_count" | grep -o '[0-9]\+')
-echo "" > whooeta.json
+> "$output"
 for release_id in $release_ids
 do
     # Do something with each release ID, for example, print it
-    az pipelines release show \
+    release_details=$(az pipelines release show \
     --id "$release_id" \
     --query '{
         releaseVariableGroups: variableGroups[].name,
@@ -22,6 +22,7 @@ do
             stageVariableGroup: variableGroups[].name
         }
     }' \
-    --output json \
-    >> "$output"
+    --output json) \
+    
+    echo "$release_details">> "$output"
 done
