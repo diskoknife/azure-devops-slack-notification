@@ -1,0 +1,96 @@
+# This pipeline is created for running on self-hosted agent
+# specifically on a virtual machine with Ubuntu and the apt package manager.
+# For more detailed information about self-hosted agent installation see
+# https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/linux-agent?view=azure-devops
+# Before executing the pipeline you should define next variables:
+# servicePrincipalId
+# servicePrincipalKey
+# tenantid
+# azureSubscriptionID
+# JSON_OUTPUT_FILE
+# CSV_OUTPUT_FILE
+# SLACK_CHANNEL_ID
+# SLACK_BOT_TOKEN
+# JSON_VARIABLES_GROUPS
+
+
+
+# We don't need to trigger this pipeline by changes in branches or changes in files
+trigger: none
+# run everyday on 14:00
+schedules:
+  - cron: 0 14 * * *
+    displayName: send csv file everyday on 14:00
+    branches: 
+      include: 
+        - master
+
+variables:
+  group: NotJustTestVar
+  
+  
+pool:
+  name: 'test task pool'
+
+
+stages:
+  - stage: Environment
+    displayName: Check if all prerequisites is installed and install what needed
+    jobs:
+    - job: Check
+      displayName: Check if all needed is installed
+      steps:
+      - task: Bash@3
+        inputs:
+          targetType: inline
+          script: |
+            sudo apt update && sudo apt upgrade
+            sudo apt install jq curl
+            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+            az extension add --name azure-devops
+            sudo apt install python3-is-python pip
+            pip install slack-sdk
+            pip install requests
+    # First we execute getting service principal credentials. For properly executing this step you should create service principal first and then assign it to variables in this pipeline:
+    # servicePrincipalId
+    # servicePrincipalKey
+    # tenantid
+    # azureSubscriptionID
+  - stage: Sending
+    displayName: Parse json, convert to cSV, send to Slack
+    jobs:
+    - job: Main
+      displayName: auth, parse, convert, send           
+      steps:
+      - task: AzureCLI@2
+        displayName: save credentials into env
+        inputs:
+          azureSubscription: $(azureSubsctiptionID)
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            echo "##vso[task.setvariable variable=ARM_CLIENT_ID]$servicePrincipalId" 
+            
+            echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$servicePrincipalKey"
+            
+            echo "##vso[task.setvariable variable=ARM_TENANT_ID]$tenantId"
+          addSpnToEnvironment: true
+      - bash: |
+          az login --service-principal --username $(ARM_CLIENT_ID) --password $(ARM_CLIENT_SECRET)  --tenant $(ARM_TENANT_ID)
+      - script: ./scripts/get_variable_groups_in_releases.sh
+        displayName: 'get release data into json file'
+      - script: ./scripts/get_variable_groups.sh
+        displayName: 'get all variable groups'
+      - script: python ./scripts/json_to_csv.py
+        displayName: 'convert json data to csv'
+        env:
+          JSON_VARIABLES_GROUPS: $(JSON_VARIABLES_GROUPS)
+          JSON_OUTPUT_FILE: $(JSON_OUTPUT_FILE)
+          CSV_OUTPUT_FILE: $(CSV_OUTPUT_FILE)
+
+      - script: python ./scripts/send_csv_to_slack.py
+        displayName: 'send file to slack'
+        env:
+          SLACK_BOT_TOKEN: $(SLACK_BOT_TOKEN)
+          SLACK_CHANNEL_ID: $(SLACK_CHANNEL_ID)
+          CSV_OUTPUT_FILE: $(CSV_OUTPUT_FILE)
